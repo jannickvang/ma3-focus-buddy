@@ -392,7 +392,7 @@
       b.className = 'colour-chip';
       b.innerHTML = '<span class="group-no">' + preset.number + '</span><span class="group-name"></span>';
       b.querySelector('.group-name').textContent = preset.name;
-      b.addEventListener('click', function () { cmd('Preset 4.' + preset.number); });
+      b.addEventListener('click', function () { cmd('At Preset 4.' + preset.number); });
       colourGrid.appendChild(b);
     });
   }

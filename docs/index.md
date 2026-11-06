@@ -85,7 +85,7 @@ The Colours page shows the colour presets (preset pool 4) of the selected datapo
 2. Set `OSC_LINE` in the plugin to the same OSC line as the groups plugin, and set `START` and `COUNT` to the preset range you use (default 507–607).
 3. On the Colours page, tap **Load**. The app sends `Plugin "MA3 Focus Buddy Colours"` and shows *Waiting for the MA3…* until the list arrives.
 
-Tapping a preset sends `Preset 4.<number>` to the MA3. The range is fixed in the plugin, so the app does not pass any arguments.
+Tapping a preset sends `At Preset 4.<number>` to the MA3. The range is fixed in the plugin, so the app does not pass any arguments.
 
 ## 6. Customize
 

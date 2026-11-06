@@ -85,7 +85,7 @@ De Colours-pagina toont de kleurenpresets (presetpool 4) van de geselecteerde da
 2. Zet `OSC_LINE` in de plugin op dezelfde OSC-regel als de groepenplugin, en stel `START` en `COUNT` in op het presetbereik dat je gebruikt (standaard 507–607).
 3. Tik op de Colours-pagina op **Load**. De app stuurt `Plugin "MA3 Focus Buddy Colours"` en toont *Waiting for the MA3…* tot de lijst binnen is.
 
-Een tik op een preset stuurt `Preset 4.<nummer>` naar de MA3. Het bereik staat vast in de plugin, dus de app geeft geen argumenten mee.
+Een tik op een preset stuurt `At Preset 4.<nummer>` naar de MA3. Het bereik staat vast in de plugin, dus de app geeft geen argumenten mee.
 
 ## 6. Aanpassen
 
