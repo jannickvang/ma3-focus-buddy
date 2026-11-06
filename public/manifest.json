@@ -1,6 +1,6 @@
 {
-  "name": "MA3 Remote",
-  "short_name": "MA3 Remote",
+  "name": "MA3 Focus Buddy",
+  "short_name": "MA3 Focus Buddy",
   "description": "Touch remote for grandMA3",
   "start_url": "/",
   "scope": "/",

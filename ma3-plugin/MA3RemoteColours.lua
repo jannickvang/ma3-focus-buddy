@@ -1,7 +1,7 @@
 -- MA3 Remote Colours - grandMA3 plugin
 --
 -- Sends the colour presets (preset pool 4) of the selected datapool to the
--- MA3 Remote PWA over OSC. The plugin only sends when the PWA asks for it:
+-- MA3 Focus Buddy over OSC. The plugin only sends when the PWA asks for it:
 --   Plugin "MA3 Remote Colours"   -> send presets START..START+COUNT-1
 --
 -- The preset range is fixed below (START and COUNT), so the PWA does not

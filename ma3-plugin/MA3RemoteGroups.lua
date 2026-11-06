@@ -1,6 +1,6 @@
 -- MA3 Remote Groups - grandMA3 plugin
 --
--- Sends the groups of datapool 2 to the MA3 Remote PWA over OSC.
+-- Sends the groups of datapool 2 to the MA3 Focus Buddy PWA over OSC.
 -- The plugin only sends when the PWA asks for it:
 --   Plugin "MA3 Remote Groups"          -> send the group list once
 --   Plugin "MA3 Remote Groups" "start"  -> keep sending every INTERVAL seconds

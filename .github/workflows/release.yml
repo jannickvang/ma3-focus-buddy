@@ -22,7 +22,7 @@ jobs:
       - name: Zip per platform
         run: |
           cd dist
-          for f in ma3-remote-pwa-*; do
+          for f in ma3-focus-buddy-*; do
             case "$f" in
               *.exe) zip "${f%.exe}.zip" "$f" ;;
               *) tar czf "$f.tar.gz" "$f" ;;

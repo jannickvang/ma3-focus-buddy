@@ -2,7 +2,7 @@
 title: Manual
 ---
 
-# MA3 Remote PWA manual
+# MA3 Focus Buddy manual
 
 **English | [Nederlands](index.nl.md)**
 
@@ -18,7 +18,7 @@ Step by step instructions to get the app working. If something goes wrong, see [
 
 ## 2. Start the app
 
-1. Download the right version from [Releases](https://github.com/jannickvang/ma3-remote/releases/latest).
+1. Download the right version from [Releases](https://github.com/jannickvang/ma3-focus-buddy/releases/latest).
 2. Unpack the file and start the program.
 3. **Windows:** at "Windows protected your PC" choose *More info* and then *Run anyway*. At the firewall prompt choose **Allow access** (private network). Without this the iPad cannot reach the app.
 4. **macOS:** right-click the file, choose *Open* and confirm. If needed, make it executable first with `chmod +x <file>`.
@@ -70,7 +70,7 @@ The IP address defaults to `127.0.0.1`. That only works if the MA3 runs on the s
 
 The Fixtures page loads the groups of datapool 2 from the console. This needs one small plugin in the showfile; the PWA triggers it, so the console only sends data when the page is open.
 
-1. Import [ma3-plugin/MA3RemoteGroups.lua](https://github.com/jannickvang/ma3-remote/blob/main/ma3-plugin/MA3RemoteGroups.lua) into your showfile (or add it to your template showfile once).
+1. Import [ma3-plugin/MA3RemoteGroups.lua](https://github.com/jannickvang/ma3-focus-buddy/blob/main/ma3-plugin/MA3RemoteGroups.lua) into your showfile (or add it to your template showfile once).
 2. In **Setup > In & Out > OSC**, point the OSC line at the computer running the app with the **same port as configured in the app** (default 8000). Enable output on that line. The app listens for feedback on that same UDP port, so one OSC line is enough.
 3. In the plugin, set `OSC_LINE` to the number of that OSC line.
 4. Open the Fixtures page. The app sends `Plugin "MA3 Remote Groups"` and shows *Waiting for the MA3…* until the group list arrives. The list refreshes automatically while the page is open.
@@ -81,7 +81,7 @@ The plugin sends the group number and name of every group in datapool 2 over OSC
 
 The Colours page shows the colour presets (preset pool 4) of the selected datapool, with their real names.
 
-1. Import [ma3-plugin/MA3RemoteColours.lua](https://github.com/jannickvang/ma3-remote/blob/main/ma3-plugin/MA3RemoteColours.lua) into your showfile (next to the groups plugin).
+1. Import [ma3-plugin/MA3RemoteColours.lua](https://github.com/jannickvang/ma3-focus-buddy/blob/main/ma3-plugin/MA3RemoteColours.lua) into your showfile (next to the groups plugin).
 2. Set `OSC_LINE` in the plugin to the same OSC line as the groups plugin, and set `START` and `COUNT` to the preset range you use (default 507–607).
 3. On the Colours page, tap **Load**. The app sends `Plugin "MA3 Remote Colours"` and shows *Waiting for the MA3…* until the list arrives.
 
@@ -95,7 +95,7 @@ Tapping a preset sends `Preset 4.<number>` to the MA3. The range is fixed in the
 - **Bottom button bar:** the buttons are configurable in Settings (order, visibility, command). Default: Highlight, Next, Previous, Set, Full, Clear, Esc.
 - **Override attribute names:** set the environment variable `MA3_ATTRIBUTE_MAP` with JSON, for example `{"Focus":"Focus1"}`.
 - **Port of the app itself:** 3000 by default. Change it with the environment variable `PORT`.
-- **Settings:** per-client settings are stored in `ma3-remote-config.json` next to the program. Keep this file backed up if you want to preserve the client list and settings.
+- **Settings:** per-client settings are stored in `ma3-focus-buddy-config.json` next to the program. Keep this file backed up if you want to preserve the client list and settings.
 
 ## Troubleshooting
 

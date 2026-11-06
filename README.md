@@ -1,20 +1,20 @@
-# MA3 Remote PWA
+# MA3 Focus Buddy
 
 Touch remote (PWA) for a grandMA3 console, optimized for iPad. Encoders, shapers and fixture/group selection. Commands are sent as OSC (`/cmd`) over UDP to the MA3.
 
 ## Download and run
 
 1. Download the latest version for your platform from [Releases](../../releases/latest):
-   - Windows: `ma3-remote-pwa-win-x64.zip`
-   - macOS (Apple Silicon / Intel): `ma3-remote-pwa-macos-arm64.tar.gz` / `ma3-remote-pwa-macos-x64.tar.gz`
-   - Linux: `ma3-remote-pwa-linux-x64.tar.gz`
+   - Windows: `ma3-focus-buddy-win-x64.zip`
+   - macOS (Apple Silicon / Intel): `ma3-focus-buddy-macos-arm64.tar.gz` / `ma3-focus-buddy-macos-x64.tar.gz`
+   - Linux: `ma3-focus-buddy-linux-x64.tar.gz`
 2. Start the program. It prints an address like `http://192.168.1.20:3000`.
 3. Open that address in Safari on the iPad (or another browser).
 4. Tap the status label at the top right and enter the IP address and port of the MA3.
 
 Windows and macOS warn about unsigned programs: choose "Run anyway" (macOS: right-click, "Open"). Allow firewall access on first start.
 
-> Full instructions and troubleshooting: see the [manual](https://jannickvang.github.io/ma3-remote/).
+> Full instructions and troubleshooting: see the [manual](https://jannickvang.github.io/ma3-focus-buddy/).
 
 ## MA3 setup
 

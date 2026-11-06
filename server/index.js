@@ -14,7 +14,7 @@ const PACKAGED = typeof process.pkg !== 'undefined';
 const CONFIG_PATH =
   process.env.CONFIG_PATH ||
   (PACKAGED
-    ? path.join(path.dirname(process.execPath), 'ma3-remote-config.json')
+    ? path.join(path.dirname(process.execPath), 'ma3-focus-buddy-config.json')
     : path.join(__dirname, '..', 'data', 'config.json'));
 
 function parseJson(str) {
@@ -570,7 +570,7 @@ server.on('error', (err) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`MA3 Remote PWA running on http://0.0.0.0:${PORT}`);
+  console.log(`MA3 Focus Buddy running on http://0.0.0.0:${PORT}`);
   for (const list of Object.values(require('os').networkInterfaces())) {
     for (const i of list || []) {
       if (i.family === 'IPv4' && !i.internal) console.log(`  Open on your iPad: http://${i.address}:${PORT}`);

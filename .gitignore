@@ -1,6 +1,6 @@
 node_modules/
 dist/
 data/
-ma3-remote-config.json
+ma3-focus-buddy-config.json
 .DS_Store
 .vscode/
