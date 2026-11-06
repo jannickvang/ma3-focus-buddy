@@ -104,7 +104,8 @@
       }
       if (msg.type === 'groupsTimeout') {
         groupsWaiting = false;
-        setGroupsStatus('No response from the MA3. Is the "MA3 Focus Buddy Groups" plugin present in the showfile?', true);
+        groupGrid.innerHTML = '';
+        setGroupsStatus('No groups received from the MA3. Either the "MA3 Focus Buddy Groups" plugin is missing or not working, or datapool 2 contains no groups yet.', true);
         return;
       }
       if (msg.type === 'colours') {
@@ -114,7 +115,8 @@
       }
       if (msg.type === 'coloursTimeout') {
         coloursWaiting = false;
-        setColoursStatus('No response from the MA3. Is the "MA3 Focus Buddy Colours" plugin present in the showfile?', true);
+        colourGrid.innerHTML = '';
+        setColoursStatus('No colour presets received from the MA3. Either the "MA3 Focus Buddy Colours" plugin is missing or not working, or the preset range contains no presets yet.', true);
         return;
       }
       if (msg.type !== 'status') return;
