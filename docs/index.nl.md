@@ -75,7 +75,13 @@ De Fixtures-pagina laadt de groepen van datapool 2 uit de console. Hiervoor is �
 3. Zet in de plugin `OSC_LINE` op het nummer van die OSC-regel.
 4. Open de Fixtures-pagina. De app stuurt `Plugin "MA3 Focus Buddy Groups"` en toont *Waiting for the MA3…* tot de groepslijst binnen is. De lijst ververst automatisch zolang de pagina open is.
 
-De plugin stuurt het groepsnummer en de naam van elke groep in datapool 2 via OSC. Komt er niets binnen, controleer dan of de plugin in het showfile staat en of het OSC-regelnummer klopt. De app print bij het opstarten `OSC feedback listening on UDP port <poort>` voor elke ingestelde MA3-poort. Wil je een vaste feedbackpoort, gebruik dan de omgevingsvariabele `OSC_IN_PORT`.
+De plugin stuurt het groepsnummer en de naam van elke groep in datapool 2 via OSC. Komt er niets binnen, controleer dan of de plugin in het showfile staat en of het OSC-regelnummer klopt. De app print bij het opstarten `OSC feedback listening on UDP port <poort>` voor elke ingestelde MA3-poort.
+
+**Draaien de app en de MA3-software (onPC) op dezelfde machine?** De app kan dan niet luisteren op dezelfde UDP-poort waarnaar hij stuurt, omdat de MA3-software die al bezet heeft — de feedback komt nooit aan. Draai de app in dat geval met een aparte feedbackpoort, bijv. 9000, via de omgevingsvariabele `OSC_IN_PORT`, en wijs de OSC-regel die de feedback stuurt naar die poort:
+
+- App: `OSC_IN_PORT=9000` (de app stuurt commando's nog steeds naar de MA3-poort, bijv. 8000)
+- MA3, de OSC-regel die **commando's ontvangt**: poort 8000
+- MA3, de OSC-regel die **de plugin-feedback stuurt**: Destination `127.0.0.1`, poort 9000
 
 ## Kleurenpresets uit de MA3 (plugin)
 

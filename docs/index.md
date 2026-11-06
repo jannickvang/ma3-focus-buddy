@@ -75,7 +75,13 @@ The Fixtures page loads the groups of datapool 2 from the console. This needs on
 3. In the plugin, set `OSC_LINE` to the number of that OSC line.
 4. Open the Fixtures page. The app sends `Plugin "MA3 Focus Buddy Groups"` and shows *Waiting for the MA3…* until the group list arrives. The list refreshes automatically while the page is open.
 
-The plugin sends the group number and name of every group in datapool 2 over OSC. If nothing arrives, check that the plugin exists in the showfile and that the OSC line number matches. The app prints `OSC feedback listening on UDP port <port>` at startup for every configured MA3 port. To use a fixed feedback port instead, set the environment variable `OSC_IN_PORT`.
+The plugin sends the group number and name of every group in datapool 2 over OSC. If nothing arrives, check that the plugin exists in the showfile and that the OSC line number matches. The app prints `OSC feedback listening on UDP port <port>` at startup for every configured MA3 port.
+
+**Running the app and the MA3 software (onPC) on the same machine?** The app then cannot listen on the same UDP port it sends to, because the MA3 software already occupies it — the feedback never arrives. In that case run the app with a separate feedback port, e.g. 9000, via the environment variable `OSC_IN_PORT`, and point the OSC line that sends the feedback at that port:
+
+- App: `OSC_IN_PORT=9000` (the app still sends commands to the MA3 port, e.g. 8000)
+- MA3, the OSC line that **receives commands**: port 8000
+- MA3, the OSC line that **sends the plugin feedback**: Destination `127.0.0.1`, port 9000
 
 ## Colour presets from the MA3 (plugin)
 
