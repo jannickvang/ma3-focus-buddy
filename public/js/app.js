@@ -30,6 +30,9 @@
   }
 
   function localClientSettings() {
+    // One-time migration: settings that only existed on the device are sent
+    // to the server on first connect. After that the server is the source
+    // of truth and nothing is stored on the device anymore.
     var settings = {};
     try {
       settings.frost = JSON.parse(localStorage.getItem('ma3.frostPresets.v1'));
@@ -38,6 +41,12 @@
       settings.page = localStorage.getItem('ma3.page');
     } catch (e) {}
     return settings;
+  }
+
+  function clearLocalSettings() {
+    ['ma3.frostPresets.v1', 'ma3.bar.v3', 'ma3.toggles.v1', 'ma3.page'].forEach(function (key) {
+      try { localStorage.removeItem(key); } catch (e) {}
+    });
   }
 
   clientId = getClientId();
@@ -84,27 +93,8 @@
       if (msg.type === 'clientSettings') {
         pendingServerSettings = msg.settings || {};
         if (msg.name) document.getElementById('client-name').value = msg.name;
-        var synced = false;
-        try {
-          if (!sessionStorage.getItem('ma3.serverSync')) {
-            var syncKeys = { frost: 'ma3.frostPresets.v1', bar: 'ma3.bar.v3', toggles: 'ma3.toggles.v1' };
-            Object.keys(syncKeys).forEach(function (key) {
-              if (pendingServerSettings[key]) {
-                var value = JSON.stringify(pendingServerSettings[key]);
-                if (localStorage.getItem(syncKeys[key]) !== value) {
-                  localStorage.setItem(syncKeys[key], value);
-                  synced = true;
-                }
-              }
-            });
-            if (pendingServerSettings.page && localStorage.getItem('ma3.page') !== pendingServerSettings.page) {
-              localStorage.setItem('ma3.page', pendingServerSettings.page);
-              synced = true;
-            }
-            sessionStorage.setItem('ma3.serverSync', '1');
-            if (synced) window.location.reload();
-          }
-        } catch (e) {}
+        applyServerSettings(pendingServerSettings);
+        clearLocalSettings();
         return;
       }
       if (msg.type === 'groups') {
@@ -147,6 +137,26 @@
   }
   function cmd(text) { send({ type: 'cmd', cmd: text }); }
 
+  // The server is the source of truth for all settings: apply them live.
+  function applyServerSettings(s) {
+    if (!s) return;
+    if (Array.isArray(s.frost) && s.frost.length === FROST_LABELS.length) {
+      frostPresets = s.frost;
+      renderFrostButtons();
+      if (settingsDialog.open) renderFrostConfig();
+    }
+    if (Array.isArray(s.bar) && s.bar.length) {
+      barButtons = s.bar;
+      renderBar();
+      if (settingsDialog.open) renderConfig();
+    }
+    if (Array.isArray(s.toggles)) {
+      toggles = s.toggles;
+      renderToggles();
+    }
+    if (typeof s.page === 'string') showPage(s.page, true);
+  }
+
   setInterval(function () {
     if (ws && ws.readyState === WebSocket.OPEN) ws.send('{"type":"ping"}');
   }, 10000);
@@ -187,14 +197,15 @@
   /* ================= Navigatie ================= */
   var navBtns = document.querySelectorAll('.nav-btn');
   var pages = document.querySelectorAll('.page');
-  function showPage(name) {
+  var currentPage = 'encoders';
+  function showPage(name, fromServer) {
+    currentPage = name;
     navBtns.forEach(function (b) { b.classList.toggle('active', b.dataset.page === name); });
     pages.forEach(function (p) { p.classList.toggle('active', p.id === 'page-' + name); });
-    try { localStorage.setItem('ma3.page', name); } catch (e) {}
+    if (!fromServer) sendSettings();
     if (name === 'fixtures') startGroupPolling(); else stopGroupPolling();
   }
   navBtns.forEach(function (b) { b.addEventListener('click', function () { showPage(b.dataset.page); }); });
-  try { var saved = localStorage.getItem('ma3.page'); if (saved) showPage(saved); } catch (e) {}
 
   ['bar-buttons', 'config-list'].forEach(function (id) {
     document.getElementById(id).classList.add('scrollable');
@@ -211,21 +222,12 @@
   mid.appendChild(frostPanel);
   new Wheel(mid, { attr: 'Focus', label: 'Focus', pxPerStep: 7, stepSize: 1 });
 
-  var FROST_KEY = 'ma3.frostPresets.v1';
   var FROST_LABELS = ['No Frost', 'Light Frost', 'Medium Frost', 'Combined Frost'];
   var frostPresets = ['5.1', '5.2', '5.3', '5.4'];
   var frostButtons = document.querySelector('#frost-presets .frost-buttons');
   var frostDialog = settingsDialog;
   var frostConfig = document.getElementById('frost-config');
   var frostError = document.getElementById('frost-error');
-
-  try {
-    var savedFrost = JSON.parse(localStorage.getItem(FROST_KEY));
-    if (Array.isArray(savedFrost) && savedFrost.length === FROST_LABELS.length &&
-        savedFrost.every(function (preset) { return typeof preset === 'string' && /^\d+(?:\.\d+)?$/.test(preset); })) {
-      frostPresets = savedFrost;
-    }
-  } catch (e) {}
 
   function renderFrostButtons() {
     frostButtons.innerHTML = '';
@@ -263,7 +265,6 @@
       return;
     }
     frostPresets = values;
-    try { localStorage.setItem(FROST_KEY, JSON.stringify(frostPresets)); } catch (e) {}
     renderFrostButtons();
     sendSettings();
   });
@@ -410,21 +411,11 @@
   document.getElementById('colours-refresh').addEventListener('click', requestColours);
 
   /* ================= Toggles ================= */
-  var TOGGLES_KEY = 'ma3.toggles.v1';
   var toggles = [];
   var toggleGrid = document.getElementById('toggle-grid');
   var togglesDialog = document.getElementById('toggles-dialog');
   var togglesList = document.getElementById('toggles-list');
   var togglesError = document.getElementById('toggles-error');
-
-  try {
-    var savedToggles = JSON.parse(localStorage.getItem(TOGGLES_KEY));
-    if (Array.isArray(savedToggles)) toggles = savedToggles;
-  } catch (e) {}
-
-  function saveToggles() {
-    try { localStorage.setItem(TOGGLES_KEY, JSON.stringify(toggles)); } catch (e) {}
-  }
 
   function renderToggles() {
     toggleGrid.innerHTML = '';
@@ -464,7 +455,7 @@
           var to = idx + a[1];
           if (to < 0 || to >= toggles.length) return;
           var tmp = toggles[idx]; toggles[idx] = toggles[to]; toggles[to] = tmp;
-          saveToggles(); renderToggles(); renderTogglesConfig(); sendSettings();
+          renderToggles(); renderTogglesConfig(); sendSettings();
         });
         li.appendChild(btn);
       });
@@ -472,7 +463,7 @@
       del.textContent = '✕';
       del.addEventListener('click', function () {
         toggles.splice(idx, 1);
-        saveToggles(); renderToggles(); renderTogglesConfig(); sendSettings();
+        renderToggles(); renderTogglesConfig(); sendSettings();
       });
       li.appendChild(del);
       togglesList.appendChild(li);
@@ -500,7 +491,7 @@
     toggles.push({ label: label, seq: seq });
     labelEl.value = '';
     seqEl.value = '';
-    saveToggles(); renderToggles(); renderTogglesConfig(); sendSettings();
+    renderToggles(); renderTogglesConfig(); sendSettings();
   });
   renderToggles();
 
@@ -516,23 +507,12 @@
     { id: 'store', label: 'Store', cmd: 'Store', visible: false },
     { id: 'update', label: 'Update', cmd: 'Update', visible: false }
   ];
-  var BAR_KEY = 'ma3.bar.v3';
-  var barButtons = loadBar();
+  var barButtons = clone(DEFAULT_BUTTONS);
   var barEl = document.getElementById('bar-buttons');
   var dialog = document.getElementById('config-dialog');
   var listEl = document.getElementById('config-list');
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
-  function loadBar() {
-    try {
-      var s = JSON.parse(localStorage.getItem(BAR_KEY));
-      if (Array.isArray(s) && s.length) return s;
-    } catch (e) {}
-    return clone(DEFAULT_BUTTONS);
-  }
-  function saveBar() {
-    try { localStorage.setItem(BAR_KEY, JSON.stringify(barButtons)); } catch (e) {}
-  }
   function sendSettings(overrides) {
     var settings = {
       name: document.getElementById('client-name').value.trim(),
@@ -541,7 +521,7 @@
       frost: frostPresets,
       bar: barButtons,
       toggles: toggles,
-      page: localStorage.getItem('ma3.page') || 'encoders'
+      page: currentPage
     };
     Object.assign(settings, overrides || {});
     send({ type: 'saveSettings', settings: settings });
@@ -572,7 +552,7 @@
       var chk = document.createElement('input');
       chk.type = 'checkbox';
       chk.checked = def.visible;
-      chk.addEventListener('change', function () { def.visible = chk.checked; saveBar(); renderBar(); sendSettings(); });
+      chk.addEventListener('change', function () { def.visible = chk.checked; renderBar(); sendSettings(); });
       var name = document.createElement('span');
       name.className = 'name';
       name.textContent = def.label;
@@ -588,7 +568,7 @@
           var to = idx + a[1];
           if (to < 0 || to >= barButtons.length) return;
           var tmp = barButtons[idx]; barButtons[idx] = barButtons[to]; barButtons[to] = tmp;
-          saveBar(); renderBar(); renderConfig(); sendSettings();
+          renderBar(); renderConfig(); sendSettings();
         });
         li.appendChild(btn);
       });
@@ -597,7 +577,7 @@
         del.textContent = '✕';
         del.addEventListener('click', function () {
           barButtons.splice(idx, 1);
-          saveBar(); renderBar(); renderConfig(); sendSettings();
+          renderBar(); renderConfig(); sendSettings();
         });
         li.appendChild(del);
       }
@@ -610,7 +590,7 @@
   });
   document.getElementById('config-reset').addEventListener('click', function () {
     barButtons = clone(DEFAULT_BUTTONS);
-    saveBar(); renderBar(); renderConfig(); sendSettings();
+    renderBar(); renderConfig(); sendSettings();
   });
   document.getElementById('custom-add').addEventListener('click', function () {
     var labelEl = document.getElementById('custom-label');
@@ -621,7 +601,7 @@
     barButtons.push({ id: 'custom-' + Date.now(), label: label, cmd: c, visible: true, custom: true });
     labelEl.value = '';
     cmdEl.value = '';
-    saveBar(); renderBar(); renderConfig(); sendSettings();
+    renderBar(); renderConfig(); sendSettings();
   });
 
   document.getElementById('client-name-save').addEventListener('click', function () {

@@ -89,7 +89,7 @@ Een tik op een preset stuurt `At Preset 4.<nummer>` naar de MA3. Het bereik staa
 
 ## 6. Aanpassen
 
-- **Instellingen en clients:** instellingen worden door de server per browserclient opgeslagen. Bij de eerste verbinding worden bestaande frost- en balkinstellingen van het toestel gemigreerd. De clientlijst in Instellingen toont bekende clients en laat ze verwijderen.
+- **Instellingen en clients:** alle instellingen (MA3-doel, frost-presets, onderste balk, toggles en de laatst geopende pagina) worden door de server per browserclient opgeslagen; er blijft niets op het toestel staan. Bij de allereerste verbinding worden instellingen die alleen op het toestel bestonden eenmalig naar de server gemigreerd. De clientlijst in Instellingen toont bekende clients en laat ze verwijderen.
 - **Bereikbaarheid:** de statusindicator gebruikt een ping op de achtergrond om de ingestelde host te controleren. Hij is oranje terwijl een nieuw opgeslagen doel wordt gecontroleerd, groen na een geslaagde ping en rood wanneer de host onbereikbaar is. Een geslaagde ping bevestigt alleen netwerkbereikbaarheid; hij bevestigt niet dat MA3 naar OSC-commando's luistert of ze verwerkt.
 - **Frost-presets:** de vier frostknoppen roepen standaard MA3-presets 5.1 t/m 5.4 op. Stel de presetnummers in via Instellingen.
 - **Onderste knoppenbalk:** de knoppen zijn configureerbaar in Instellingen (volgorde, zichtbaarheid, commando). Standaard: Highlight, Next, Previous, Set, Full, Clear, Esc.

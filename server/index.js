@@ -485,11 +485,12 @@ wss.on('connection', (ws, req) => {
     if (msg.type === 'saveSettings') {
       const settings = safeClientSettings(msg.settings);
       if (settings.ip && settings.port) {
+        const targetChanged = settings.ip !== ws.client.ip || settings.port !== ws.client.port;
         ws.client.ip = settings.ip;
         ws.client.port = settings.port;
         getLink(ws.clientId, ws.client).configure({ ip: settings.ip, port: settings.port });
         ensureOscReceiver(settings.port);
-        checkReachability(ws.clientId, ws.client);
+        if (targetChanged) checkReachability(ws.clientId, ws.client);
       }
       if (msg.settings && msg.settings.name) ws.client.name = safeClientName(msg.settings.name);
       ws.client.settings = { ...ws.client.settings, ...settings };
