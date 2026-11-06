@@ -70,10 +70,10 @@ The IP address defaults to `127.0.0.1`. That only works if the MA3 runs on the s
 
 The Fixtures page loads the groups of datapool 2 from the console. This needs one small plugin in the showfile; the PWA triggers it, so the console only sends data when the page is open.
 
-1. Import [ma3-plugin/MA3RemoteGroups.lua](https://github.com/jannickvang/ma3-focus-buddy/blob/main/ma3-plugin/MA3RemoteGroups.lua) into your showfile (or add it to your template showfile once).
+1. Import [ma3-plugin/MA3FocusBuddyGroups.lua](https://github.com/jannickvang/ma3-focus-buddy/blob/main/ma3-plugin/MA3FocusBuddyGroups.lua) into your showfile (or add it to your template showfile once).
 2. In **Setup > In & Out > OSC**, point the OSC line at the computer running the app with the **same port as configured in the app** (default 8000). Enable output on that line. The app listens for feedback on that same UDP port, so one OSC line is enough.
 3. In the plugin, set `OSC_LINE` to the number of that OSC line.
-4. Open the Fixtures page. The app sends `Plugin "MA3 Remote Groups"` and shows *Waiting for the MA3…* until the group list arrives. The list refreshes automatically while the page is open.
+4. Open the Fixtures page. The app sends `Plugin "MA3 Focus Buddy Groups"` and shows *Waiting for the MA3…* until the group list arrives. The list refreshes automatically while the page is open.
 
 The plugin sends the group number and name of every group in datapool 2 over OSC. If nothing arrives, check that the plugin exists in the showfile and that the OSC line number matches. The app prints `OSC feedback listening on UDP port <port>` at startup for every configured MA3 port. To use a fixed feedback port instead, set the environment variable `OSC_IN_PORT`.
 
@@ -81,9 +81,9 @@ The plugin sends the group number and name of every group in datapool 2 over OSC
 
 The Colours page shows the colour presets (preset pool 4) of the selected datapool, with their real names.
 
-1. Import [ma3-plugin/MA3RemoteColours.lua](https://github.com/jannickvang/ma3-focus-buddy/blob/main/ma3-plugin/MA3RemoteColours.lua) into your showfile (next to the groups plugin).
+1. Import [ma3-plugin/MA3FocusBuddyColours.lua](https://github.com/jannickvang/ma3-focus-buddy/blob/main/ma3-plugin/MA3FocusBuddyColours.lua) into your showfile (next to the groups plugin).
 2. Set `OSC_LINE` in the plugin to the same OSC line as the groups plugin, and set `START` and `COUNT` to the preset range you use (default 507–607).
-3. On the Colours page, tap **Load**. The app sends `Plugin "MA3 Remote Colours"` and shows *Waiting for the MA3…* until the list arrives.
+3. On the Colours page, tap **Load**. The app sends `Plugin "MA3 Focus Buddy Colours"` and shows *Waiting for the MA3…* until the list arrives.
 
 Tapping a preset sends `Preset 4.<number>` to the MA3. The range is fixed in the plugin, so the app does not pass any arguments.
 

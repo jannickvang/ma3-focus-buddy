@@ -1,8 +1,8 @@
--- MA3 Remote Colours - grandMA3 plugin
+-- MA3 Focus Buddy Colours - grandMA3 plugin
 --
 -- Sends the colour presets (preset pool 4) of the selected datapool to the
 -- MA3 Focus Buddy over OSC. The plugin only sends when the PWA asks for it:
---   Plugin "MA3 Remote Colours"   -> send presets START..START+COUNT-1
+--   Plugin "MA3 Focus Buddy Colours"   -> send presets START..START+COUNT-1
 --
 -- The preset range is fixed below (START and COUNT), so the PWA does not
 -- pass any arguments. The OSC destination (IP address and port) comes from
@@ -10,9 +10,9 @@
 -- of that line (the same line the PWA uses to send commands to the console).
 --
 -- Messages sent to the PWA:
---   /ma3remote/colours/begin ,s <version>
---   /ma3remote/colour        ,is <preset number> <preset name>
---   /ma3remote/colours/end   ,i <preset count>
+--   /ma3focusbuddy/colours/begin ,s <version>
+--   /ma3focusbuddy/colour        ,is <preset number> <preset name>
+--   /ma3focusbuddy/colours/end   ,i <preset count>
 
 local OSC_LINE = 2      -- In & Out > OSC line that points at the PWA server
 local POOL     = 4      -- preset pool 4 = Colour
@@ -26,7 +26,7 @@ end
 
 local function sendColours(first, last)
     local count = 0
-    sendOSC('/ma3remote/colours/begin,s,' .. VERSION)
+    sendOSC('/ma3focusbuddy/colours/begin,s,' .. VERSION)
 
     local ok, presets = pcall(function() return DataPool().PresetPools[POOL] end)
     if ok and presets then
@@ -34,15 +34,15 @@ local function sendColours(first, last)
             local okPreset, preset = pcall(function() return presets[number] end)
             if okPreset and preset then
                 local name = tostring(preset.name or ''):gsub('"', "'")
-                sendOSC(string.format('/ma3remote/colour,is,%d,%s', number, name))
+                sendOSC(string.format('/ma3focusbuddy/colour,is,%d,%s', number, name))
                 count = count + 1
             end
         end
     else
-        Printf('MA3 Remote Colours: preset pool ' .. POOL .. ' not found in the selected datapool')
+        Printf('MA3 Focus Buddy Colours: preset pool ' .. POOL .. ' not found in the selected datapool')
     end
 
-    sendOSC(string.format('/ma3remote/colours/end,i,%d', count))
+    sendOSC(string.format('/ma3focusbuddy/colours/end,i,%d', count))
 end
 
 local function main()

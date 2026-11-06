@@ -307,21 +307,21 @@ function broadcastGroups(clientId, payload) {
 }
 
 function handleGroupMessage(msg) {
-  if (msg.address.startsWith('/ma3remote/colour')) {
+  if (msg.address.startsWith('/ma3focusbuddy/colour')) {
     handleColourMessage(msg);
     return;
   }
   const collectors = [...groupCollectors.values()];
   if (!collectors.length) return;
-  if (msg.address === '/ma3remote/groups/begin') {
+  if (msg.address === '/ma3focusbuddy/groups/begin') {
     for (const c of collectors) c.groups = [];
-  } else if (msg.address === '/ma3remote/group' && msg.args.length >= 2) {
+  } else if (msg.address === '/ma3focusbuddy/group' && msg.args.length >= 2) {
     const number = Number(msg.args[0]);
     const name = String(msg.args[1]);
     if (Number.isFinite(number)) {
       for (const c of collectors) c.groups.push({ number, name });
     }
-  } else if (msg.address === '/ma3remote/groups/end') {
+  } else if (msg.address === '/ma3focusbuddy/groups/end') {
     for (const [clientId, c] of groupCollectors) {
       clearTimeout(c.timer);
       c.timer = null;
@@ -334,15 +334,15 @@ function handleGroupMessage(msg) {
 
 function handleColourMessage(msg) {
   if (!colourCollectors.size) return;
-  if (msg.address === '/ma3remote/colours/begin') {
+  if (msg.address === '/ma3focusbuddy/colours/begin') {
     for (const c of colourCollectors.values()) c.colours = [];
-  } else if (msg.address === '/ma3remote/colour' && msg.args.length >= 2) {
+  } else if (msg.address === '/ma3focusbuddy/colour' && msg.args.length >= 2) {
     const number = Number(msg.args[0]);
     const name = String(msg.args[1]);
     if (Number.isFinite(number)) {
       for (const c of colourCollectors.values()) c.colours.push({ number, name });
     }
-  } else if (msg.address === '/ma3remote/colours/end') {
+  } else if (msg.address === '/ma3focusbuddy/colours/end') {
     for (const [clientId, c] of colourCollectors) {
       clearTimeout(c.timer);
       c.timer = null;
@@ -520,7 +520,7 @@ wss.on('connection', (ws, req) => {
         }
       }, 8000);
       groupCollectors.set(ws.clientId, collector);
-      getLink(ws.clientId, ws.client).send('Plugin "MA3 Remote Groups"');
+      getLink(ws.clientId, ws.client).send('Plugin "MA3 Focus Buddy Groups"');
       return;
     }
     if (msg.type === 'requestColours') {
@@ -534,7 +534,7 @@ wss.on('connection', (ws, req) => {
         }
       }, 8000);
       colourCollectors.set(ws.clientId, collector);
-      getLink(ws.clientId, ws.client).send('Plugin "MA3 Remote Colours"');
+      getLink(ws.clientId, ws.client).send('Plugin "MA3 Focus Buddy Colours"');
       return;
     }
     for (const command of buildCommands(msg)) getLink(ws.clientId, ws.client).send(command);

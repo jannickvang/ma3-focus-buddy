@@ -114,7 +114,7 @@
       }
       if (msg.type === 'groupsTimeout') {
         groupsWaiting = false;
-        setGroupsStatus('No response from the MA3. Is the "MA3 Remote Groups" plugin present in the showfile?', true);
+        setGroupsStatus('No response from the MA3. Is the "MA3 Focus Buddy Groups" plugin present in the showfile?', true);
         return;
       }
       if (msg.type === 'colours') {
@@ -124,7 +124,7 @@
       }
       if (msg.type === 'coloursTimeout') {
         coloursWaiting = false;
-        setColoursStatus('No response from the MA3. Is the "MA3 Remote Colours" plugin present in the showfile?', true);
+        setColoursStatus('No response from the MA3. Is the "MA3 Focus Buddy Colours" plugin present in the showfile?', true);
         return;
       }
       if (msg.type !== 'status') return;

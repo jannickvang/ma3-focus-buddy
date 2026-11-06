@@ -1,7 +1,7 @@
 {
   "name": "ma3-focus-buddy",
   "version": "1.2.0",
-  "description": "Touch remote PWA for grandMA3 (encoders, shapers, fixtures & colour)",
+  "description": "Focus Buddy app for grandMA3 (encoders, shapers, fixtures & colour)",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
