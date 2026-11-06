@@ -163,7 +163,10 @@
       toggles = s.toggles;
       renderToggles();
     }
-    if (typeof s.page === 'string') showPage(s.page, true);
+    if (typeof s.page === 'string') {
+      pageFromServer = true;
+      if (s.page !== currentPage) showPage(s.page, true);
+    }
   }
 
   setInterval(function () {
@@ -207,11 +210,14 @@
   var navBtns = document.querySelectorAll('.nav-btn');
   var pages = document.querySelectorAll('.page');
   var currentPage = 'encoders';
+  var pageFromServer = false;
   function showPage(name, fromServer) {
     currentPage = name;
     navBtns.forEach(function (b) { b.classList.toggle('active', b.dataset.page === name); });
     pages.forEach(function (p) { p.classList.toggle('active', p.id === 'page-' + name); });
-    if (!fromServer) sendSettings();
+    // Only send the page once it came from the server (or the user changed
+    // it), so a fresh client never clobbers its stored page with the default.
+    if (!fromServer && pageFromServer) sendSettings();
     if (name === 'fixtures') startGroupPolling(); else stopGroupPolling();
   }
   navBtns.forEach(function (b) { b.addEventListener('click', function () { showPage(b.dataset.page); }); });

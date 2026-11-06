@@ -134,7 +134,9 @@ function safeClientSettings(settings) {
   return result;
 }
 
-const SHARED_KEYS = ['frost', 'bar', 'toggles', 'page', 'ip', 'port', 'name'];
+// Shared across all devices; 'page' stays per client (each device has its
+// own active page) but is still stored on the server.
+const SHARED_KEYS = ['frost', 'bar', 'toggles', 'ip', 'port', 'name'];
 
 function getShared() {
   if (!store.shared || typeof store.shared !== 'object') store.shared = {};
@@ -147,10 +149,17 @@ function sharedTarget() {
 }
 
 function broadcastSharedSettings() {
-  const payload = JSON.stringify({ type: 'clientSettings', name: getShared().name, settings: getShared() });
   for (const ws of wss.clients) {
-    if (ws.readyState === WebSocket.OPEN && ws.clientId) ws.send(payload);
+    if (ws.readyState === WebSocket.OPEN && ws.clientId) sendSettingsTo(ws);
   }
+}
+
+function sendSettingsTo(ws) {
+  const shared = getShared();
+  const settings = { ...shared };
+  delete settings.name;
+  if (ws.client && ws.client.page) settings.page = ws.client.page;
+  ws.send(JSON.stringify({ type: 'clientSettings', name: shared.name, settings }));
 }
 
 /* ------------------------------------------------------------------ *
@@ -406,7 +415,8 @@ function getClient(clientId, submitted) {
       lastSeenAt: new Date().toISOString()
     };
     // One-time migration: a brand-new client may still carry settings that
-    // only existed on the device; adopt them as shared settings.
+    // only existed on the device; adopt them as shared settings. The page
+    // stays per client.
     const shared = getShared();
     let migrated = false;
     for (const key of SHARED_KEYS) {
@@ -415,6 +425,7 @@ function getClient(clientId, submitted) {
         migrated = true;
       }
     }
+    if (settings.page !== undefined) client.page = settings.page;
     if (migrated) console.log('[config] migrated on-device settings to shared settings');
     saveConfig(store);
   }
@@ -485,11 +496,7 @@ wss.on('connection', (ws, req) => {
       ws.client = getClient(clientId, msg);
       const link = getLink(clientId);
       ensureOscReceiver(sharedTarget().port);
-      ws.send(JSON.stringify({
-        type: 'clientSettings',
-        name: getShared().name,
-        settings: getShared()
-      }));
+      sendSettingsTo(ws);
       checkReachability(clientId);
       return ws.send(JSON.stringify({ type: 'status', ...link.status() }));
     }
@@ -527,6 +534,7 @@ wss.on('connection', (ws, req) => {
       for (const key of SHARED_KEYS) {
         if (settings[key] !== undefined) shared[key] = settings[key];
       }
+      if (settings.page !== undefined) ws.client.page = settings.page;
       saveConfig(store);
       broadcastSharedSettings();
       if (targetChanged) checkReachability(ws.clientId);
