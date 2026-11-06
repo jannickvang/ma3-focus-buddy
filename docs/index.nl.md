@@ -89,13 +89,13 @@ Een tik op een preset stuurt `At Preset 4.<nummer>` naar de MA3. Het bereik staa
 
 ## 6. Aanpassen
 
-- **Instellingen en clients:** alle instellingen (MA3-doel, frost-presets, onderste balk, toggles en de laatst geopende pagina) worden door de server per browserclient opgeslagen; er blijft niets op het toestel staan. Bij de allereerste verbinding worden instellingen die alleen op het toestel bestonden eenmalig naar de server gemigreerd. De clientlijst in Instellingen toont bekende clients en laat ze verwijderen.
+- **Instellingen en clients:** alle instellingen (MA3-doel, clientnaam, frost-presets, onderste balk, toggles en de laatst geopende pagina) worden één keer op de server opgeslagen en gedeeld door alle verbonden toestellen; er blijft niets op de toestellen staan. Een wijziging op één toestel wordt direct naar alle andere gepusht. Bij de allereerste verbinding worden instellingen die alleen op een toestel bestonden eenmalig naar de server gemigreerd. De clientlijst in Instellingen toont bekende toestellen en laat ze verwijderen.
 - **Bereikbaarheid:** de statusindicator gebruikt een ping op de achtergrond om de ingestelde host te controleren. Hij is oranje terwijl een nieuw opgeslagen doel wordt gecontroleerd, groen na een geslaagde ping en rood wanneer de host onbereikbaar is. Een geslaagde ping bevestigt alleen netwerkbereikbaarheid; hij bevestigt niet dat MA3 naar OSC-commando's luistert of ze verwerkt.
 - **Frost-presets:** de vier frostknoppen roepen standaard MA3-presets 5.1 t/m 5.4 op. Stel de presetnummers in via Instellingen.
 - **Onderste knoppenbalk:** de knoppen zijn configureerbaar in Instellingen (volgorde, zichtbaarheid, commando). Standaard: Highlight, Next, Previous, Set, Full, Clear, Esc.
 - **Attribuutnamen overschrijven:** zet de omgevingsvariabele `MA3_ATTRIBUTE_MAP` met JSON, bijvoorbeeld `{"Focus":"Focus1"}`.
 - **Poort van de app zelf:** standaard 3000. Pas aan met de omgevingsvariabele `PORT`.
-- **Instellingen:** per-client instellingen worden opgeslagen in `ma3-focus-buddy-config.json` naast het programma. Maak een back-up van dit bestand als je de clientlijst en instellingen wilt behouden.
+- **Instellingen:** de gedeelde instellingen worden opgeslagen in `ma3-focus-buddy-config.json` naast het programma. Maak een back-up van dit bestand als je de instellingen en de clientlijst wilt behouden.
 
 ## Probleemoplossing
 

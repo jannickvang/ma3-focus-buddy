@@ -93,6 +93,13 @@
       if (msg.type === 'clientSettings') {
         pendingServerSettings = msg.settings || {};
         if (msg.name) document.getElementById('client-name').value = msg.name;
+        if (pendingServerSettings.ip && pendingServerSettings.port &&
+            (pendingServerSettings.ip !== ma3State.ip || pendingServerSettings.port !== ma3State.port)) {
+          ma3State.ip = pendingServerSettings.ip;
+          ma3State.port = pendingServerSettings.port;
+          ma3State.mode = 'remote';
+          renderStatus();
+        }
         applyServerSettings(pendingServerSettings);
         clearLocalSettings();
         return;

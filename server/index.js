@@ -98,6 +98,9 @@ function safeClientName(value) {
     : 'Unnamed client';
 }
 
+// All settings are shared: every connected device sees and edits the same
+// configuration (MA3 target, client name, buttons, toggles, frost presets,
+// last page). Changes are broadcast live to all connected clients.
 function safeClientSettings(settings) {
   if (!settings || typeof settings !== 'object') return {};
   const result = {};
@@ -129,6 +132,25 @@ function safeClientSettings(settings) {
     result.port = settings.port;
   }
   return result;
+}
+
+const SHARED_KEYS = ['frost', 'bar', 'toggles', 'page', 'ip', 'port', 'name'];
+
+function getShared() {
+  if (!store.shared || typeof store.shared !== 'object') store.shared = {};
+  return store.shared;
+}
+
+function sharedTarget() {
+  const shared = getShared();
+  return validTarget(shared.ip, shared.port) ? shared : defaultClientConfig();
+}
+
+function broadcastSharedSettings() {
+  const payload = JSON.stringify({ type: 'clientSettings', name: getShared().name, settings: getShared() });
+  for (const ws of wss.clients) {
+    if (ws.readyState === WebSocket.OPEN && ws.clientId) ws.send(payload);
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -379,22 +401,28 @@ function getClient(clientId, submitted) {
   let client = store.clients[clientId];
   if (!client) {
     const settings = safeClientSettings(submitted && submitted.settings);
-    const target = validTarget(settings.ip, settings.port) ? settings : defaultClientConfig();
     client = store.clients[clientId] = {
-      name: safeClientName(submitted && (submitted.name || (submitted.settings && submitted.settings.name))),
-      ip: target.ip,
-      port: target.port,
-      settings,
       createdAt: new Date().toISOString(),
       lastSeenAt: new Date().toISOString()
     };
+    // One-time migration: a brand-new client may still carry settings that
+    // only existed on the device; adopt them as shared settings.
+    const shared = getShared();
+    let migrated = false;
+    for (const key of SHARED_KEYS) {
+      if (shared[key] === undefined && settings[key] !== undefined) {
+        shared[key] = key === 'name' ? safeClientName(settings[key]) : settings[key];
+        migrated = true;
+      }
+    }
+    if (migrated) console.log('[config] migrated on-device settings to shared settings');
     saveConfig(store);
   }
   client.lastSeenAt = new Date().toISOString();
   return client;
 }
-function getLink(clientId, client) {
-  if (!links.has(clientId)) links.set(clientId, new MA3Link({ ip: client.ip, port: client.port }, () => {}));
+function getLink(clientId) {
+  if (!links.has(clientId)) links.set(clientId, new MA3Link(sharedTarget(), () => {}));
   return links.get(clientId);
 }
 
@@ -404,32 +432,34 @@ function pingArgs(host) {
   return ['-c', '1', '-W', String(Math.ceil(PING_TIMEOUT / 1000)), host];
 }
 
-function broadcastClientStatus(clientId) {
-  const link = links.get(clientId);
+function broadcastStatus() {
+  const link = links.values().next().value;
   if (!link) return;
   const payload = JSON.stringify({ type: 'status', ...link.status() });
   for (const ws of wss.clients) {
-    if (ws.readyState === WebSocket.OPEN && ws.clientId === clientId) ws.send(payload);
+    if (ws.readyState === WebSocket.OPEN && ws.clientId) ws.send(payload);
   }
 }
 
-function checkReachability(clientId, client) {
-  const link = getLink(clientId, client);
+function checkReachability(clientId) {
+  const link = getLink(clientId);
+  const target = sharedTarget();
   link.lastPingAt = new Date().toISOString();
-  execFile('ping', pingArgs(client.ip), { timeout: PING_TIMEOUT + 500, windowsHide: true }, (error) => {
+  execFile('ping', pingArgs(target.ip), { timeout: PING_TIMEOUT + 500, windowsHide: true }, (error) => {
     link.reachable = !error;
     link.pingError = error ? 'Host did not respond to ping' : null;
-    broadcastClientStatus(clientId);
+    broadcastStatus();
   });
 }
 
 function checkAllReachability() {
-  for (const [clientId, client] of Object.entries(store.clients)) checkReachability(clientId, client);
+  for (const clientId of Object.keys(store.clients)) checkReachability(clientId);
 }
 
 app.get('/api/clients', (req, res) => {
+  const shared = getShared();
   res.json(Object.entries(store.clients).map(([id, client]) => ({
-    id, name: client.name, ip: client.ip, port: client.port, lastSeenAt: client.lastSeenAt
+    id, name: shared.name || 'Unnamed client', ip: shared.ip, port: shared.port, lastSeenAt: client.lastSeenAt
   })));
 });
 
@@ -453,14 +483,14 @@ wss.on('connection', (ws, req) => {
       if (!clientId) return ws.send(JSON.stringify({ type: 'configError', error: 'Invalid client ID' }));
       ws.clientId = clientId;
       ws.client = getClient(clientId, msg);
-      const link = getLink(clientId, ws.client);
-      ensureOscReceiver(ws.client.port);
+      const link = getLink(clientId);
+      ensureOscReceiver(sharedTarget().port);
       ws.send(JSON.stringify({
         type: 'clientSettings',
-        name: ws.client.name,
-        settings: ws.client.settings
+        name: getShared().name,
+        settings: getShared()
       }));
-      checkReachability(clientId, ws.client);
+      checkReachability(clientId);
       return ws.send(JSON.stringify({ type: 'status', ...link.status() }));
     }
     if (!ws.clientId || !ws.client) return;
@@ -472,36 +502,41 @@ wss.on('connection', (ws, req) => {
       }
       const cfg = { ip, port };
       console.log(`[config] new MA3 target: ${ip}:${port}`);
-      ws.client.ip = ip;
-      ws.client.port = port;
-      ws.client.settings.ip = ip;
-      ws.client.settings.port = port;
-      getLink(ws.clientId, ws.client).configure(cfg);
+      const shared = getShared();
+      shared.ip = ip;
+      shared.port = port;
+      getLink(ws.clientId).configure(cfg);
       ensureOscReceiver(port);
       saveConfig(store);
-      checkReachability(ws.clientId, ws.client);
-      return ws.send(JSON.stringify({ type: 'status', ...getLink(ws.clientId, ws.client).status() }));
+      broadcastSharedSettings();
+      checkReachability(ws.clientId);
+      return ws.send(JSON.stringify({ type: 'status', ...getLink(ws.clientId).status() }));
     }
     if (msg.type === 'saveSettings') {
       const settings = safeClientSettings(msg.settings);
+      const shared = getShared();
+      let targetChanged = false;
       if (settings.ip && settings.port) {
-        const targetChanged = settings.ip !== ws.client.ip || settings.port !== ws.client.port;
-        ws.client.ip = settings.ip;
-        ws.client.port = settings.port;
-        getLink(ws.clientId, ws.client).configure({ ip: settings.ip, port: settings.port });
+        targetChanged = settings.ip !== shared.ip || settings.port !== shared.port;
+        shared.ip = settings.ip;
+        shared.port = settings.port;
+        getLink(ws.clientId).configure({ ip: settings.ip, port: settings.port });
         ensureOscReceiver(settings.port);
-        if (targetChanged) checkReachability(ws.clientId, ws.client);
       }
-      if (msg.settings && msg.settings.name) ws.client.name = safeClientName(msg.settings.name);
-      ws.client.settings = { ...ws.client.settings, ...settings };
+      if (msg.settings && msg.settings.name) shared.name = safeClientName(msg.settings.name);
+      for (const key of SHARED_KEYS) {
+        if (settings[key] !== undefined) shared[key] = settings[key];
+      }
       saveConfig(store);
-      ws.send(JSON.stringify({ type: 'clientSettings', name: ws.client.name, settings: ws.client.settings }));
-      return ws.send(JSON.stringify({ type: 'status', ...getLink(ws.clientId, ws.client).status() }));
+      broadcastSharedSettings();
+      if (targetChanged) checkReachability(ws.clientId);
+      return ws.send(JSON.stringify({ type: 'status', ...getLink(ws.clientId).status() }));
     }
     if (msg.type === 'renameClient') {
-      ws.client.name = safeClientName(msg.name);
+      getShared().name = safeClientName(msg.name);
       saveConfig(store);
-      return ws.send(JSON.stringify({ type: 'clientSettings', name: ws.client.name, settings: ws.client.settings }));
+      broadcastSharedSettings();
+      return;
     }
     if (msg.type === 'deleteClient') {
       const targetId = safeClientId(msg.clientId) || ws.clientId;
@@ -521,7 +556,7 @@ wss.on('connection', (ws, req) => {
         }
       }, 8000);
       groupCollectors.set(ws.clientId, collector);
-      getLink(ws.clientId, ws.client).send('Plugin "MA3 Focus Buddy Groups"');
+      getLink(ws.clientId).send('Plugin "MA3 Focus Buddy Groups"');
       return;
     }
     if (msg.type === 'requestColours') {
@@ -535,10 +570,10 @@ wss.on('connection', (ws, req) => {
         }
       }, 8000);
       colourCollectors.set(ws.clientId, collector);
-      getLink(ws.clientId, ws.client).send('Plugin "MA3 Focus Buddy Colours"');
+      getLink(ws.clientId).send('Plugin "MA3 Focus Buddy Colours"');
       return;
     }
-    for (const command of buildCommands(msg)) getLink(ws.clientId, ws.client).send(command);
+    for (const command of buildCommands(msg)) getLink(ws.clientId).send(command);
   });
 
   ws.on('close', () => {

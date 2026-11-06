@@ -89,13 +89,13 @@ Tapping a preset sends `At Preset 4.<number>` to the MA3. The range is fixed in 
 
 ## 6. Customize
 
-- **Settings and clients:** all settings (MA3 target, frost presets, bottom bar, toggles and the last opened page) are stored by the server per browser client; nothing is kept on the device. On the very first connection, settings that only existed on the device are migrated to the server once. The client list in Settings shows known clients and allows removing them.
+- **Settings and clients:** all settings (MA3 target, client name, frost presets, bottom bar, toggles and the last opened page) are stored once on the server and shared by every connected device; nothing is kept on the devices. A change on one device is pushed live to all others. On the very first connection, settings that only existed on a device are migrated to the server once. The client list in Settings shows known devices and allows removing them.
 - **Reachability:** the status indicator uses a background network ping to check the configured host. It is orange while a newly saved target is being checked, green after a successful ping and red when the host is unreachable. A successful ping only confirms network reachability; it does not confirm that MA3 is listening for or processing OSC commands.
 - **Frost presets:** the four frost buttons recall MA3 presets 5.1 through 5.4 by default. Configure the preset numbers in Settings.
 - **Bottom button bar:** the buttons are configurable in Settings (order, visibility, command). Default: Highlight, Next, Previous, Set, Full, Clear, Esc.
 - **Override attribute names:** set the environment variable `MA3_ATTRIBUTE_MAP` with JSON, for example `{"Focus":"Focus1"}`.
 - **Port of the app itself:** 3000 by default. Change it with the environment variable `PORT`.
-- **Settings:** per-client settings are stored in `ma3-focus-buddy-config.json` next to the program. Keep this file backed up if you want to preserve the client list and settings.
+- **Settings:** the shared settings are stored in `ma3-focus-buddy-config.json` next to the program. Keep this file backed up if you want to preserve the settings and the client list.
 
 ## Troubleshooting
 
