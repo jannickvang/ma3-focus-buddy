@@ -1,4 +1,4 @@
-const CACHE = 'ma3-focus-buddy-v22';
+const CACHE = 'ma3-focus-buddy-v23';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon.svg', '/css/style.css', '/js/app.js', '/js/encoders.js'];
 
 self.addEventListener('install', (e) => {

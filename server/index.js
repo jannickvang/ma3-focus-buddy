@@ -45,7 +45,8 @@ const ATTRIBUTE_MAP = Object.assign(
     Blade1Rot: 'Blade1Rot',
     Blade2Rot: 'Blade2Rot',
     Blade3Rot: 'Blade3Rot',
-    Blade4Rot: 'Blade4Rot'
+    Blade4Rot: 'Blade4Rot',
+    ShaperRot: 'ShaperRot'
   },
   parseJson(process.env.MA3_ATTRIBUTE_MAP)
 );

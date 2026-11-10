@@ -19,6 +19,7 @@
     this.pxPerStep = opts.pxPerStep || 7;   // pixels per stap
     this.stepSize = opts.stepSize || 1;      // % per stap
     this.invert = !!opts.invert;
+    this.horizontal = !!opts.horizontal; // horizontale encoder: slepen met clientX
     // Acceleration: dragging faster = larger steps (only when accel is enabled)
     this.accel = !!opts.accel;
     this.accelStart = opts.accelStart || 0.6;  // px/ms waarboven versnelling begint
@@ -30,7 +31,7 @@
     this.pending = 0;
     this.offset = 0;
     this.activeId = null;
-    this.lastY = 0;
+    this.lastPos = 0;
     this.flushTimer = null;
     this.lastMoveTime = 0;
     this.build(parent, opts.className);
@@ -40,7 +41,7 @@
 
   Wheel.prototype.build = function (parent, className) {
     var root = document.createElement('div');
-    root.className = 'wheel ' + (className || '');
+    root.className = 'wheel ' + (this.horizontal ? 'horizontal ' : '') + (className || '');
     var title = document.createElement('div');
     title.className = 'wheel-label';
     title.textContent = this.label;
@@ -64,7 +65,7 @@
       e.preventDefault();
       if (self.activeId !== null) return;
       var t = e.changedTouches[0];
-      self.begin(t.identifier, t.clientY);
+      self.begin(t.identifier, self.horizontal ? t.clientX : t.clientY);
     }, { passive: false });
 
     el.addEventListener('touchmove', function (e) {
@@ -72,7 +73,7 @@
       if (self.activeId === null) return;
       for (var i = 0; i < e.changedTouches.length; i++) {
         var t = e.changedTouches[i];
-        if (t.identifier === self.activeId) { self.move(t.clientY); break; }
+        if (t.identifier === self.activeId) { self.move(self.horizontal ? t.clientX : t.clientY); break; }
       }
     }, { passive: false });
 
@@ -90,8 +91,8 @@
     el.addEventListener('mousedown', function (e) {
       if (self.activeId !== null) return;
       e.preventDefault();
-      self.begin('mouse', e.clientY);
-      function mm(ev) { self.move(ev.clientY); }
+      self.begin('mouse', self.horizontal ? e.clientX : e.clientY);
+      function mm(ev) { self.move(self.horizontal ? ev.clientX : ev.clientY); }
       function mu() {
         window.removeEventListener('mousemove', mm);
         window.removeEventListener('mouseup', mu);
@@ -102,21 +103,23 @@
     });
   };
 
-  Wheel.prototype.begin = function (id, y) {
+  Wheel.prototype.begin = function (id, pos) {
     this.activeId = id;
-    this.lastY = y;
+    this.lastPos = pos;
     this.lastT = performance.now();
     this.speed = 0;
     this.accum = 0;
     this.root.classList.add('active');
   };
 
-  Wheel.prototype.move = function (y) {
-    var dy = this.lastY - y;        // omhoog slepen = positief
-    this.lastY = y;
-    if (this.invert) dy = -dy;
-    this.offset = (this.offset + dy) % 28;
-    this.track.style.backgroundPositionY = this.offset + 'px';
+  Wheel.prototype.move = function (pos) {
+    // verticaal: omhoog slepen = positief; horizontaal: naar rechts = positief
+    var d = this.horizontal ? pos - this.lastPos : this.lastPos - pos;
+    this.lastPos = pos;
+    if (this.invert) d = -d;
+    this.offset = (this.offset + d) % 28;
+    if (this.horizontal) this.track.style.backgroundPositionX = this.offset + 'px';
+    else this.track.style.backgroundPositionY = this.offset + 'px';
 
     var factor = 1;
     if (this.accel) {
@@ -124,12 +127,12 @@
       var dt = Math.max(now - this.lastT, 1);
       this.lastT = now;
       // Smoothed velocity, so a single fast touch event does not overshoot
-      this.speed = this.speed * 0.6 + (Math.abs(dy) / dt) * 0.4;
+      this.speed = this.speed * 0.6 + (Math.abs(d) / dt) * 0.4;
       if (this.speed > this.accelStart) {
         factor = Math.min(this.accelMax, 1 + (this.speed - this.accelStart) * this.accelGain);
       }
     }
-    this.accum += (dy * factor) / this.pxPerStep;
+    this.accum += (d * factor) / this.pxPerStep;
     var steps = this.accum < 0 ? Math.ceil(this.accum) : Math.floor(this.accum);
     if (steps !== 0) {
       this.accum -= steps;

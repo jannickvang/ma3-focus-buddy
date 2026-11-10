@@ -60,7 +60,7 @@ Het IP-adres staat standaard op `127.0.0.1`. Dat werkt alleen als de MA3 op deze
 | **Netwerk** | iPad, de computer met de app en de MA3 moeten elkaar kunnen bereiken. Gast- of clientisolatie op de wifi blokkeert dit. |
 | **Firewall** | Sta de app toe op privénetwerken (TCP 3000 voor de iPad, UDP voor de MA3-poort). |
 | **Readout** | Zet op **Percent**, anders zijn de stappen veel te groot. |
-| **Attribuutnamen** | De app gebruikt `Pan`, `Tilt`, `Zoom`, `Focus1`, `Blade 1A` t/m `Blade 4A` en `Blade1 Rot` t/m `Blade4 Rot`. Gebruiken jouw fixtures andere namen, pas dan `MA3_ATTRIBUTE_MAP` aan (zie hieronder). |
+| **Attribuutnamen** | De app gebruikt `Pan`, `Tilt`, `Zoom`, `Focus1`, `Blade 1A` t/m `Blade 4A`, `Blade1 Rot` t/m `Blade4 Rot` en `Shaper Rot`. Gebruiken jouw fixtures andere namen, pas dan `MA3_ATTRIBUTE_MAP` aan (zie hieronder). |
 | **Instellingen** | Het enkele tandwiel opent één instellingenmenu voor de MA3-verbinding, frost-presets, de onderste knoppenbalk en clientbeheer. De server pingt periodiek elke ingestelde MA3-host en toont of deze bereikbaar is. |
 | **Set** | De knop stuurt `Set Selection Property 'Active'`. Bedoeld om na Next/Previous de hele groep opnieuw te selecteren. |
 | **Groepen** | De Fixtures-pagina toont de groepen van datapool 2 met nummer en naam. Een tik op een groep selecteert de fixtures in de MA3 (`SelectFixtures Datapool 2 Group <nummer>`). |

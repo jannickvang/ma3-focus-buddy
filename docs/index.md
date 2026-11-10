@@ -60,7 +60,7 @@ The IP address defaults to `127.0.0.1`. That only works if the MA3 runs on the s
 | **Network** | iPad, the computer running the app and the MA3 must be able to reach each other. Guest or client isolation on the wifi blocks this. |
 | **Firewall** | Allow the app on private networks (TCP 3000 for the iPad, UDP for the MA3 port). |
 | **Readout** | Set to **Percent**, otherwise the steps are far too large. |
-| **Attribute names** | The app uses `Pan`, `Tilt`, `Zoom`, `Focus1`, `Blade 1A` to `Blade 4A` and `Blade1 Rot` to `Blade4 Rot`. If your fixtures use other names, adjust `MA3_ATTRIBUTE_MAP` (see below). |
+| **Attribute names** | The app uses `Pan`, `Tilt`, `Zoom`, `Focus1`, `Blade 1A` to `Blade 4A`, `Blade1 Rot` to `Blade4 Rot` and `Shaper Rot`. If your fixtures use other names, adjust `MA3_ATTRIBUTE_MAP` (see below). |
 | **Settings** | The single gear button opens one settings menu for the MA3 connection, frost presets, bottom button bar and client management. The server periodically pings each configured MA3 host and shows whether it is reachable. |
 | **Set** | The button sends `Set Selection Property 'Active'`. It is meant to select the whole group again after Next/Previous. |
 | **Groups** | The Fixtures page shows the groups of datapool 2 with number and name. Tapping a group selects its fixtures in the MA3 (`SelectFixtures Datapool 2 Group <number>`). |

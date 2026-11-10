@@ -185,6 +185,25 @@ input:focus { border-color: var(--accent); }
 .wheel.active .wheel-track { border-color: var(--accent); box-shadow: 0 0 18px rgba(255,159,28,.3); }
 .wheel.active .wheel-grip { background: var(--accent); }
 
+/* Horizontale wheel (bijv. Shaper Rot) */
+.wheel.horizontal .wheel-track {
+  flex: 0 0 auto;
+  height: 84px;
+  min-height: 0;
+  background-image:
+    repeating-linear-gradient(to right, rgba(255,255,255,.07) 0 2px, transparent 2px 14px),
+    linear-gradient(to bottom, rgba(0,0,0,.65), rgba(255,255,255,.06) 50%, rgba(0,0,0,.65));
+  background-size: 28px 100%, 100% 100%;
+}
+.wheel.horizontal .wheel-track::before,
+.wheel.horizontal .wheel-track::after {
+  left: auto; right: auto; top: 0; bottom: 0;
+  width: 12%; height: auto;
+}
+.wheel.horizontal .wheel-track::before { left: 0; background: linear-gradient(to right, #0b0b0d, transparent); border-radius: 18px 0 0 18px; }
+.wheel.horizontal .wheel-track::after { right: 0; background: linear-gradient(to left, #0b0b0d, transparent); border-radius: 0 18px 18px 0; }
+.wheel.horizontal .wheel-grip { width: 46%; height: 6px; }
+
 .shaper-grid {
   flex: 1; min-height: 0;
   display: grid;
@@ -195,6 +214,7 @@ input:focus { border-color: var(--accent); }
 .shaper-blade h3 { margin: 0; text-align: center; font-size: 15px; color: var(--accent); }
 .shaper-blade .pair { flex: 1; min-height: 0; display: flex; gap: 8px; }
 .shaper-blade .wheel { flex: 1; }
+.shaper-rot { flex: 0 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
 
 /* ---------- Toggles ---------- */
 .toggle-layout { flex: 1; min-height: 0; display: flex; gap: 10px; }

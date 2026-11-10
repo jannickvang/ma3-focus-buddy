@@ -295,6 +295,7 @@
     new Wheel(pair, { attr: 'Blade' + i, label: 'Insert', pxPerStep: 7, stepSize: 0.05, accel: true });
     new Wheel(pair, { attr: 'Blade' + i + 'Rot', label: 'Rotation', pxPerStep: 7, stepSize: 0.05, accel: true });
   }
+  new Wheel(document.getElementById('shaper-rot'), { attr: 'ShaperRot', label: 'Shaper Rot', horizontal: true, pxPerStep: 7, stepSize: 0.05, accel: true });
 
 
   /* ================= Fixtures ================= */

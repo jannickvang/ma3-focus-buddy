@@ -1,6 +1,6 @@
 {
   "name": "ma3-focus-buddy",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Focus Buddy app for grandMA3 (encoders, shapers, fixtures & colour)",
   "main": "server/index.js",
   "scripts": {
