@@ -11,23 +11,14 @@
     "node": ">=18"
   },
   "bin": "server/index.js",
-  "pkg": {
-    "assets": [
-      "public/**/*"
-    ],
-    "targets": [
-      "node22-win-x64",
-      "node22-macos-arm64",
-      "node22-macos-x64",
-      "node22-linux-x64"
-    ]
-  },
   "dependencies": {
     "express": "^4.19.2",
     "ws": "^8.17.0"
   },
   "devDependencies": {
-    "@yao-pkg/pkg": "^6.0.0"
+    "@resvg/resvg-js": "^2.6.2",
+    "@yao-pkg/pkg": "^6.0.0",
+    "resedit": "^3.1.0"
   },
   "license": "MIT"
 }
